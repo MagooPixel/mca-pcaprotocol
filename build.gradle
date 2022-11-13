@@ -1,0 +1,57 @@
+plugins {
+    id('fabric-loom').version('0.11-SNAPSHOT')
+    id('maven-publish')
+    id('org.ajoberstar.grgit').version('4.1.0')
+}
+
+setSourceCompatibility(JavaVersion.toVersion(project.java_version))
+setTargetCompatibility(JavaVersion.toVersion(project.java_version))
+String real_version = "${project.mod_version}"
+
+//if (project.pre_release as String != "") {
+//    real_version += "-${project.pre_release}+"
+//    if (project.pre_release as String == "alpha" && !grgit.status().clean) {
+//        real_version += new Date().format("yyyyMMdd.HHmmss") + ".dirty." + grgit.head().abbreviatedId
+//    } else {
+//        real_version += grgit.head().abbreviatedId
+//    }
+//}
+
+setArchivesBaseName("${project.archives_base_name}-${project.minecraft_version}")
+setVersion(real_version)
+setGroup(project.maven_group)
+repositories {
+    maven {
+        url "https://www.cursemaven.com"
+    }
+    mavenCentral()
+}
+
+dependencies {
+    // To change the versions see the gradle.properties file
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.minecraft_version}+build.${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+}
+
+loom {
+    accessWidenerPath.set(file("src/main/resources/pca.accesswidener"))
+}
+
+processResources {
+    inputs.property("version", real_version)
+    filesMatching("fabric.mod.json") {
+        expand(["version": real_version])
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+    it.options.release.set(Integer.parseInt(project.java_version as String))
+}
+
+jar {
+    from("LICENSE") {
+        rename({ return "${it}_${project.archives_base_name}" })
+    }
+}
