@@ -5,6 +5,8 @@ import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -18,7 +20,8 @@ public class ModInfo {
         modContainerOptional.ifPresent(modContainer -> MOD_VERSION = modContainer.getMetadata().getVersion().getFriendlyString());
     }
 
-    public static Identifier id(String path) {
+    @Contract("_ -> new")
+    public static @NotNull Identifier id(String path) {
         return new Identifier(MOD_ID, path);
     }
 }
